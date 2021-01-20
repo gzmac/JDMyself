@@ -1,2 +1,1 @@
-# JDMyself
-JD Actions for Myself
+# 项目已作废
