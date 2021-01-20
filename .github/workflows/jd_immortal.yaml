@@ -52,3 +52,4 @@ jobs:
                   JDSXSY_SHARECODES: ${{ github.event.client_payload.JDSXSY_SHARECODES || secrets.JDSXSY_SHARECODES }}
                   SYNCURL: jd_immortal.js
                   REPOURL: ${{ github.event.client_payload.REPOURL || secrets.REPOURL }}
+                  BANSTR: ${{ github.event.client_payload.BANSTR || secrets.BANSTR }}
