@@ -250,6 +250,7 @@ async function download(url, path, target) {
     await fs.writeFileSync(path, fcontent, "utf8");
     console.log(`下载${target}完毕`);
 }
+
 //#endregion
 
 module.exports = {
