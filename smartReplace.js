@@ -14,10 +14,6 @@ async function inject() {
 
 async function inject_jd() {
     if (!process.env.JD_COOKIE) return;
-    replacements.push({
-        key: "GITHUB",
-        value: `DONOTUSEACTION`,
-    });
     if (remoteContent.indexOf("function requireConfig()") >= 0 && remoteContent.indexOf("jd_bean_sign.js") >= 0) {
         replacements.push({
             key: "resultPath = err ? '/tmp/result.txt' : resultPath;",
@@ -209,13 +205,6 @@ async function downloader_jd() {
             "京喜工厂互助码"
         );
     }
-    if (remoteContent.indexOf("jdJxncTokens.js") > 0) {
-        await download(
-            "https://github.com/573462273/JDMyself/raw/main/scripts/jdJxncTokens.js",
-            "./jdJxncTokens.js",
-            "京喜农场token"
-        );
-    }
     if (remoteContent.indexOf("new Env('京喜农场')") > 0) {
         await download(
             "https://github.com/573462273/JDMyself/raw/main/scripts/jdJxncTokens.js",
@@ -246,7 +235,6 @@ async function downloader_user_agents() {
 async function download(url, path, target) {
     let response = await axios.get(url);
     let fcontent = response.data;
-    if(process.env.REPOURL) fcontent = fcontent.replace('GITHUB','DONOTUSEACTION');
     await fs.writeFileSync(path, fcontent, "utf8");
     console.log(`下载${target}完毕`);
 }
