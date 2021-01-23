@@ -22,7 +22,7 @@ jobs:
             - name: 设置运行环境-Node.js 10.x
               uses: actions/setup-node@v1
               with:
-                  node-version: 10.x
+                  node-version: "10.x"
             - name: 安装依赖包
               run: |
                   npm install
