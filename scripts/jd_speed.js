@@ -121,7 +121,7 @@ function jDSpeedUp(sourceId) {
             } else {
               console.log("\n" + "天天加速-开始本次任务 ");
             }
-            if (res.info.isLogin === 1) {
+            if (res.code === 0 && res.success) {
               subTitle = `【奖励】${res.data.beans_num}京豆`;
               if (res.data.task_status === 0) {
                 const taskID = res.data.source_id;
@@ -156,15 +156,14 @@ function jDSpeedUp(sourceId) {
               } else {
                 console.log("\n" + "天天加速-判断状态码失败")
               }
-            } else {
-              console.log("\n" + "天天加速-判断状态失败")
             }
           } else {
             console.log(`京豆api返回数据为空，请检查自身原因`)
           }
         }
       } catch (e) {
-        $.msg("京东天天-加速" + e.name + "‼️", JSON.stringify(e), e.message)
+        // $.msg("京东天天-加速" + e.name + "‼️", JSON.stringify(e), e.message)
+        $.logErr(e, resp);
       } finally {
         resolve()
       }
@@ -218,7 +217,8 @@ function spaceEventList() {
           }
         }
       } catch (e) {
-        $.msg("天天加速-查询太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
+        // $.msg("天天加速-查询太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
+        $.logErr(e, resp)
       } finally {
         resolve(spaceEvents)
       }
@@ -265,7 +265,8 @@ function spaceEventHandleEvent(spaceEventList) {
               }
             }
           } catch (e) {
-            $.msg("天天加速-查询处理太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
+            // $.msg("天天加速-查询处理太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
+            $.logErr(e, resp)
           } finally {
             if (spaceEventList.length === spaceNumTask) {
               console.log("\n天天加速-已成功处理" + spaceNumTask + "个太空特殊事件")
@@ -321,7 +322,8 @@ function energyPropList() {
           }
         }
       } catch (eor) {
-        $.msg("天天加速-查询燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+        // $.msg("天天加速-查询燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+        $.logErr(e, resp)
       } finally {
         resolve(TaskID)
       }
@@ -366,7 +368,8 @@ function receiveEnergyProp(CID) {
               }
             }
           } catch (eor) {
-            $.msg("天天加速-领取可用燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+            // $.msg("天天加速-领取可用燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+            $.logErr(e, resp)
           } finally {
             if (CID.length === count) {
               console.log("\n天天加速-已成功领取" + NumTask + "个可用燃料")
@@ -402,27 +405,30 @@ function energyPropUsaleList(EID) {
         } else {
           if (data) {
             const cc = JSON.parse(data);
-            if (cc.data.length > 0) {
-              for (let i = 0; i < cc.data.length; i++) {
-                if (cc.data[i].id) {
-                  TaskCID += cc.data[i].id + ",";
+            if (cc.code === 0 && cc.success) {
+              if (cc.data.length > 0) {
+                for (let i = 0; i < cc.data.length; i++) {
+                  if (cc.data[i].id) {
+                    TaskCID += cc.data[i].id + ",";
+                  }
                 }
-              }
-              if (TaskCID.length > 0) {
-                TaskCID = TaskCID.substr(0, TaskCID.length - 1).split(",")
-                console.log("\n天天加速-查询成功" + TaskCID.length + "个燃料ID")
+                if (TaskCID.length > 0) {
+                  TaskCID = TaskCID.substr(0, TaskCID.length - 1).split(",")
+                  console.log("\n天天加速-查询成功" + TaskCID.length + "个燃料ID")
+                } else {
+                  console.log("\n天天加速-暂无有效燃料ID")
+                }
               } else {
-                console.log("\n天天加速-暂无有效燃料ID")
+                console.log("\n天天加速-查询无燃料ID")
               }
-            } else {
-              console.log("\n天天加速-查询无燃料ID")
             }
           } else {
             console.log(`京豆api返回数据为空，请检查自身原因`)
           }
         }
       } catch (eor) {
-        $.msg("天天加速-燃料ID" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+        // $.msg("天天加速-燃料ID" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+        $.logErr(e, resp)
       } finally {
         resolve(TaskCID)
       }
@@ -472,7 +478,8 @@ function useEnergy(PropID) {
               }
             }
           } catch (eor) {
-            $.msg("天天加速-使用燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+            // $.msg("天天加速-使用燃料" + eor.name + "‼️", JSON.stringify(eor), eor.message)
+            $.logErr(e, resp)
           } finally {
             if (PropID.length === PropCount) {
               console.log("\n天天加速-已成功使用" + PropNumTask + "个燃料")
@@ -524,7 +531,7 @@ function getMemBerList() {
           }
         }
       } catch (e) {
-        $.msg("天天加速-查询太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
+        // $.msg("天天加速-查询太空特殊事件" + e.name + "‼️", JSON.stringify(e), e.message)
         $.logErr(e, resp)
       } finally {
         resolve()
