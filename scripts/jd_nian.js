@@ -2,21 +2,24 @@
 京东炸年兽🧨
 活动时间:2021-1-18至2021-2-11
 暂不加入品牌会员
-活动入口:https://wbbny.m.jd.com/babelDiy/Zeus/2cKMj86srRdhgWcKonfExzK4ZMBy/index.html
-活动地址：京东app左侧浮动窗口
+地址 https://wbbny.m.jd.com/babelDiy/Zeus/2cKMj86srRdhgWcKonfExzK4ZMBy/index.html
+活动入口：京东app首页浮动窗口
 已支持IOS双京东账号,Node.js支持N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ============Quantumultx===============
 [task_local]
 #京东炸年兽🧨
-0 9,12,20 * * * https://raw.githubusercontent.com/LXK9301/jd_scripts/master/jd_nian.js, tag=京东炸年兽🧨, img-url=https://raw.githubusercontent.com/yogayyy/Scripts/main/Icon/lxk0301/jd_nian.png, enabled=true
+0 9,12,20,21 * * * https://gitee.com/lxk0301/jd_scripts/raw/master/jd_nian.js, tag=京东炸年兽🧨, img-url=https://raw.githubusercontent.com/yogayyy/Scripts/main/Icon/lxk0301/jd_nian.png, enabled=true
+
 ================Loon==============
 [Script]
-cron "0 9,12,20 * * *" script-path=https://raw.githubusercontent.com/LXK9301/jd_scripts/master/jd_nian.js,tag=京东炸年兽🧨
+cron "0 9,12,20,21 * * *" script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_nian.js,tag=京东炸年兽🧨
+
 ===============Surge=================
-京东炸年兽🧨 = type=cron,cronexp="0 9,12,20 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/LXK9301/jd_scripts/master/jd_nian.js
+京东炸年兽🧨 = type=cron,cronexp="0 9,12,20,21 * * *",wake-system=1,timeout=3600,script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_nian.js
+
 ============小火箭=========
-京东炸年兽🧨 = type=cron,script-path=https://raw.githubusercontent.com/LXK9301/jd_scripts/master/jd_nian.js, cronexpr="0 9,12,20 * * *", timeout=3600, enable=true
+京东炸年兽🧨 = type=cron,script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_nian.js, cronexpr="0 9,12,20,21 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京东炸年兽🧨');
 
@@ -47,8 +50,8 @@ const inviteCodes = [
   `cgxZaDXWZPCmiUa2akPVmFMI27K6antJzucULQPYNim_BPEW1Dwd@cgxZdTXtIrPYuAqfDgSpusxr97nagU6hwFa3TXxnqM95u3ib-xt4nWqZdz8@cgxZdTXtIO-O6QmYDVf67KCEJ19JcybuMB2_hYu8NSNQg0oS2Z_FpMce45g@cgxZdTXtILiLvg7OAASp61meehou4OeZvqbjghsZlc3rI5SBk7b3InUqSQ0@cgxZdTXtIumO4w2cDgSqvYcqHwjaAzLxu0S371Dh_fctFJtN0tXYzdR7JaY`
 ];
 const pkInviteCodes = [
-  'IgNWdiLGaPadvlqJQnnKp27-YpAvKvSYNTSkTGvZylf_0wcvqD9EMkohEdw@IgNWdiLGaPaZskfACQyhgLSpZWps-WtQEW3McifW@IgNWdiLGaPYCeJUfsq18UNi5ln9xEZSPRdOue8Wl3hJTS2SQzU0vulL0fHeULJaIfgqHFd7f_Kg',
-  'IgNWdiLGaPadvlqJQnnKp27-YpAvKvSYNTSkTGvZylf_0wcvqD9EMkohEdw@IgNWdiLGaPaAvmHPAQf769XqjJjMyRirPzN9-AS-WHY9Y_G7t9Cwe5gdiI2qEvHa'
+  'IgNWdiLGaPadvlqJQnnKp27-YpAvKvSYNTSkTGvZylf_0wcvqD9EMkohENs@IgNWdiLGaPaZskfACQyhgLSpZWps-WtQEW3McibR@IgNWdiLGaPaAvmHPAQf769XqjJjMyRirPzN9-AS-WHY9Y_G7t9Cwe5gdiI2qEvDd',
+  'IgNWdiLGaPadvlqJQnnKp27-YpAvKvSYNTSkTGvZylf_0wcvqD9EMkohENs@IgNWdiLGaPaZskfACQyhgLSpZWps-WtQEW3McibR@IgNWdiLGaPaAvmHPAQf769XqjJjMyRirPzN9-AS-WHY9Y_G7t9Cwe5gdiI2qEvDd',
 ]
 !(async () => {
   await requireConfig();
@@ -104,6 +107,7 @@ async function jdNian() {
       $.hasGroup = false
       await pkTaskStealDetail()
       if ($.hasGroup) await pkInfo()
+      await helpFriendsPK()
     }
     await $.wait(2000)
     await killCouponList()
@@ -785,8 +789,9 @@ function pkInfo() {
           if (safeGet(data)) {
             data = JSON.parse(data);
             if (data.code === 0 && data.data && data.data.bizCode === 0) {
-              console.log(`\n您的好友PK助力码为${data.data.result.groupInfo.groupAssistInviteId}\n`)
+              console.log(`\n您的好友PK助力码为${data.data.result.groupInfo.groupAssistInviteId}\n注：此pk邀请码每天都变！`)
               let info = data.data.result.groupPkInfo
+              console.log(`预计分得:${data.data.result.groupInfo.personalAward}红包`)
               if (info.dayAward)
                 console.log(`白天关卡：${info.dayAward}元红包，完成进度 ${info.dayTotalValue}/${info.dayTargetSell}`)
               else {
@@ -1076,7 +1081,7 @@ function readShareCodePk() {
   console.log(`开始`)
   return new Promise(async resolve => {
     $.get({
-      url: `http://jd.turinglabs.net/api/v2/jd/nian_pk/read/${randomCount}/`,
+      url: `http://jd.turinglabs.net/api/v2/jd/nian/read/${randomCount}/`,
       'timeout': 10000
     }, (err, resp, data) => {
       try {
@@ -1132,7 +1137,9 @@ function shareCodesFormatPk() {
       const tempIndex = $.index > pkInviteCodes.length ? (pkInviteCodes.length - 1) : ($.index - 1);
       $.newShareCodesPk = pkInviteCodes[tempIndex].split('@');
     }
-    const readShareCodeRes = null //await readShareCodePk();
+    let readShareCodeRes = null
+    if (new Date().getUTCHours() >= 12)
+      readShareCodeRes = await readShareCodePk();
     if (readShareCodeRes && readShareCodeRes.code === 200) {
       $.newShareCodesPk = [...new Set([...$.newShareCodesPk, ...(readShareCodeRes.data || [])])];
     }
