@@ -6,7 +6,7 @@ name: 京东超级盒子
 on:
     workflow_dispatch:
     schedule:
-        - cron: "1 23 * * *"
+        - cron: "20 7 * * *"
     watch:
         types: [started]
     repository_dispatch:
