@@ -1,12 +1,12 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: 京小超领蓝币
+name: 领蓝币
 
 on:
     workflow_dispatch:
     schedule:
-        - cron: "0 0 * * * *"
+        - cron: "1 0 * * * *"
     watch:
         types: [started]
     repository_dispatch:
@@ -18,14 +18,14 @@ jobs:
         if: github.event.repository.owner.id == github.event.sender.id
         steps:
             - uses: actions/checkout@v2
-            - name: Use Node.js 10.x
+            - name: Use Node.js 12.x
               uses: actions/setup-node@v1
               with:
-                  node-version: "10.x"
+                  node-version: "12.x"
             - name: npm install
               run: |
                   npm install
-            - name: "运行【京小超领蓝币(小费)】"
+            - name: "运行【领蓝币(小费)】"
               run: |
                   node onlyOneExecute.js
               env:
