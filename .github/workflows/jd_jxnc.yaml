@@ -3,7 +3,7 @@ name: 京喜农场
 on:
     workflow_dispatch:
     schedule:
-        - cron: "0 9,12,18 * * *"
+        - cron: "0 2,17,20 * * *"
     watch:
         types: [started]
     repository_dispatch:
@@ -16,10 +16,10 @@ jobs:
         steps:
             - name: 拉取代码
               uses: actions/checkout@v2
-            - name: Use Node.js 12.x
+            - name: Use Node.js 10.x
               uses: actions/setup-node@v1
               with:
-                  node-version: "12.x"
+                  node-version: "10.x"
             - name: 安装依赖包
               run: |
                   npm install
