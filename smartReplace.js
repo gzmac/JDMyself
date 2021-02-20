@@ -35,6 +35,27 @@ async function inject_jd() {
 }
 
 function ignore_jd() {
+    // 京东JOY禁用部分Cookie，以避免被频繁通知需要去种植啥的
+    if (process.env.IGNORE_COOKIE_JDJOYPET) {
+        try {
+            var ignore_indexs = JSON.parse(process.env.IGNORE_COOKIE_JDJOYPET);
+            var ignore_names = [];
+            ignore_indexs.forEach((it) => {
+                if (it == 1) {
+                    ignore_names.push("CookieJD");
+                } else {
+                    ignore_names.push("CookieJD" + it);
+                }
+            });
+            replacements.push({
+                key: "if (jdCookieNode[item]) {",
+                value: `if (jdCookieNode[item] && ${JSON.stringify(ignore_names)}.indexOf(item) == -1) {`,
+            });
+            console.log(`IGNORE_COOKIE_JDJOYPET已生效，将为您禁用${ignore_names}`);
+        } catch (e) {
+            console.log("IGNORE_COOKIE_JDJOYPET填写有误,不禁用任何Cookie");
+        }
+    }
     // 京喜农场禁用部分Cookie，以避免被频繁通知需要去种植啥的
     if (process.env.IGNORE_COOKIE_JXNC) {
         try {
@@ -70,19 +91,38 @@ function ignore_jd() {
             });
             replacements.push({
                 key: "cookiesArr.push(jdCookieNode[item])",
-                value: `if (jdCookieNode[item] && ${JSON.stringify(
-                    ignore_names
-                )}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
+                value: `if (jdCookieNode[item] && ${JSON.stringify(ignore_names)}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
             });
-            console.log(`IGNORE_COOKIE_JXNC已生效，将为您禁用${ignore_names}`);
+            console.log(`IGNORE_COOKIE_JXGC已生效，将为您禁用${ignore_names}`);
         } catch (e) {
-            console.log("IGNORE_COOKIE_JXNC填写有误,不禁用任何Cookie");
+            console.log("IGNORE_COOKIE_JXGC填写有误,不禁用任何Cookie");
+        }
+    }
+    // 京东种豆得豆禁用部分Cookie，以避免黑号报错跳出的
+    if (process.env.IGNORE_COOKIE_ZDDD) {
+        try {
+            var ignore_indexs = JSON.parse(process.env.IGNORE_COOKIE_ZDDD);
+            var ignore_names = [];
+            ignore_indexs.forEach((it) => {
+                if (it == 1) {
+                    ignore_names.push("CookieJD");
+                } else {
+                    ignore_names.push("CookieJD" + it);
+                }
+            });
+            replacements.push({
+                key: "cookiesArr.push(jdCookieNode[item])",
+                value: `if (jdCookieNode[item] && ${JSON.stringify(ignore_names)}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
+            });
+            console.log(`IGNORE_COOKIE_ZDDD已生效，将为您禁用${ignore_names}`);
+        } catch (e) {
+            console.log("IGNORE_COOKIE_ZDDD填写有误,不禁用任何Cookie");
         }
     }
     // 口袋书店禁用部分Cookie
-    if (process.env.IGNORE_COOKIE_BOOKSHOP) {
+    if (process.env.IGNORE_COOKIE_NIAN) {
         try {
-            var ignore_indexs = JSON.parse(process.env.IGNORE_COOKIE_BOOKSHOP);
+            var ignore_indexs = JSON.parse(process.env.IGNORE_COOKIE_NIAN);
             var ignore_names = [];
             ignore_indexs.forEach((it) => {
                 if (it == 1) {
@@ -97,9 +137,9 @@ function ignore_jd() {
                     ignore_names
                 )}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
             });
-            console.log(`IGNORE_COOKIE_BOOKSHOP已生效，将为您禁用${ignore_names}`);
+            console.log(`IGNORE_COOKIE_NIAN已生效，将为您禁用${ignore_names}`);
         } catch (e) {
-            console.log("IGNORE_COOKIE_BOOKSHOP填写有误,不禁用任何Cookie");
+            console.log("IGNORE_COOKIE_NIAN填写有误,不禁用任何Cookie");
         }
     }
     // 京东农场禁用部分Cookie
@@ -139,9 +179,7 @@ function ignore_jd() {
             });
             replacements.push({
                 key: "cookiesArr.push(jdCookieNode[item])",
-                value: `if (jdCookieNode[item] && ${JSON.stringify(
-                    ignore_names
-                )}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
+                value: `if (jdCookieNode[item] && ${JSON.stringify(ignore_names)}.indexOf(item) == -1) cookiesArr.push(jdCookieNode[item])`,
             });
             console.log(`IGNORE_COOKIE_JDGC已生效，将为您禁用${ignore_names}`);
         } catch (e) {
@@ -205,7 +243,7 @@ async function downloader_jd() {
             "京喜工厂互助码"
         );
     }
-    if (remoteContent.indexOf("jdJxncTokens.js") > 0) {
+    if (remoteContent.indexOf("new Env('京喜农场')") > 0) {
         await download(
             "https://github.com/573462273/JDMyself/raw/main/scripts/jdJxncTokens.js",
             "./jdJxncTokens.js",
