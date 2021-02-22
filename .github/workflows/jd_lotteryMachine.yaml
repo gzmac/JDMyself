@@ -6,7 +6,7 @@ name: 京东抽奖机
 on:
     workflow_dispatch:
     schedule:
-        - cron: "0 16 * * *"
+        - cron: "15 16 * * *"
     watch:
         types: [started]
     repository_dispatch:
@@ -17,11 +17,11 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event.repository.owner.id == github.event.sender.id
         steps:
-            - uses: actions/checkout@v2
-            - name: Use Node.js 12.x
+            - uses: actions/checkout@v1
+            - name: Use Node.js 10.x
               uses: actions/setup-node@v1
               with:
-                  node-version: "12.x"
+                  node-version: 10.x
             - name: npm install
               run: |
                   npm install
