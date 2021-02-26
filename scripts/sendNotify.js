@@ -1,8 +1,8 @@
 /*
- * @Author: LXK9301 https://github.com/LXK9301
+ * @Author: lxk0301 https://gitee.com/lxk0301
  * @Date: 2020-08-19 16:12:40 
- * @Last Modified by: LXK9301
- * @Last Modified time: 2021-1-7 17:52:54
+ * @Last Modified by: lxk0301
+ * @Last Modified time: 2021-2-20 17:52:54
  */
 const querystring = require("querystring");
 const $ = new Env();
@@ -10,14 +10,6 @@ const $ = new Env();
 //此处填你申请的SCKEY.
 //(环境变量名 PUSH_KEY)
 let SCKEY = '';
-
-
-// =======================================QQ酷推通知设置区域===========================================
-//此处填你申请的SKEY(具体详见文档 https://cp.xuthus.cc/)
-//(环境变量名 QQ_SKEY)
-let QQ_SKEY = '';
-//此处填写私聊或群组推送，默认私聊(send[私聊]、group[群聊]、wx[个微]、ww[企微]、email[邮件])
-let QQ_MODE = 'send';
 
 // =======================================Bark App通知设置区域===========================================
 //此处填你BarkAPP的信息(IP/设备码，例如：https://api.day.app/XXXXXXXX)
@@ -47,10 +39,15 @@ let DD_BOT_SECRET = '';
 let QYWX_KEY = '';
 
 // =======================================企业微信应用消息通知设置区域===========================================
-//此处填你企业微信应用消息的 值(详见文档 https://work.weixin.qq.com/api/doc/90000/90135/90236)，依次填上corpid的值,corpsecret的值,touser的值,agentid的值，素材库图片id（见https://github.com/LXK9301/jd_scripts/issues/519) 注意用,号隔开，例如：wwcff56746d9adwers,B-791548lnzXBE6_BWfxdf3kSTMJr9vFEPKAbh6WERQ,mingcheng,1000001,2COXgjH2UIfERF2zxrtUOKgQ9XklUqMdGSWLBoW_lSDAdafat
-//corpid的值,corpsecret的值,touser的值,agentid的值，素材库图片id的获取,可查看此教程(http://note.youdao.com/s/HMiudGkb)
-//增加一个选择推送消息类型，用图文消息直接填写素材库图片id的值，用卡片消息就填写0(就是数字零)
-//(环境变量名 QYWX_AM)
+/*
+此处填你企业微信应用消息的值(详见文档 https://work.weixin.qq.com/api/doc/90000/90135/90236)
+环境变量名 QYWX_AM依次填入 corpid,corpsecret,touser(注:多个成员ID使用|隔开),agentid,消息类型(选填,不填默认文本消息类型)
+注意用,号隔开(英文输入法的逗号)，例如：wwcff56746d9adwers,B-791548lnzXBE6_BWfxdf3kSTMJr9vFEPKAbh6WERQ,mingcheng,1000001,2COXgjH2UIfERF2zxrtUOKgQ9XklUqMdGSWLBoW_lSDAdafat
+可选推送消息类型(推荐使用图文消息（mpnews）):
+- 文本卡片消息: 0 (数字零)
+- 文本消息: 1 (数字一)
+- 图文消息（mpnews）: 素材库图片id, 可查看此教程(http://note.youdao.com/s/HMiudGkb)或者(https://note.youdao.com/ynoteshare1/index.html?id=1a0c8aff284ad28cbd011b29b3ad0191&type=note)
+*/
 let QYWX_AM = '';
 
 // =======================================iGot聚合推送通知设置区域===========================================
@@ -130,7 +127,7 @@ if (process.env.PUSH_PLUS_USER) {
 
 
 async function sendNotify(text, desp, params = {}) {
-  //提供7种通知
+  //提供6种通知
   await Promise.all([
     serverNotify(text, desp),//微信server酱
     pushPlusNotify(text, desp)//pushplus(推送加)
@@ -144,7 +141,7 @@ async function sendNotify(text, desp, params = {}) {
     qywxBotNotify(text, desp), //企业微信机器人
     qywxamNotify(text, desp), //企业微信应用消息推送
     iGotNotify(text, desp, params),//iGot
-    CoolPush(text, desp)//QQ酷推
+    //CoolPush(text, desp)//QQ酷推
   ])
 }
 
@@ -168,7 +165,8 @@ function serverNotify(text, desp, timeout = 2100) {
               console.log(err);
             } else {
               data = JSON.parse(data);
-              if (data.errno === 0) {
+              //server酱和Server酱·Turbo版的返回json格式不太一样
+              if (data.errno === 0 || data.data.errno === 0 ) {
                 console.log('server酱发送通知消息成功\n')
               } else if (data.errno === 1024) {
                 // 一分钟内发送相同的内容会触发
@@ -186,80 +184,6 @@ function serverNotify(text, desp, timeout = 2100) {
       }, timeout)
     } else {
       console.log('您未提供server酱的SCKEY，取消微信推送消息通知\n');
-      resolve()
-    }
-  })
-}
-
-function CoolPush(text, desp) {
-  return  new Promise(resolve => {
-    if (QQ_SKEY) {
-      let options = {
-        url: `https://push.xuthus.cc/${QQ_MODE}/${QQ_SKEY}`,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-
-      // 已知敏感词
-      text = text.replace(/京豆/g, "豆豆");
-      desp = desp.replace(/京豆/g, "");
-      desp = desp.replace(/🐶/g, "");
-      desp = desp.replace(/红包/g, "H包");
-
-      switch (QQ_MODE) {
-        case "email":
-          options.json = {
-            "t": text,
-            "c": desp,
-          };
-          break;
-        default:
-          options.body = `${text}\n\n${desp}`;
-      }
-
-      let pushMode = function(t) {
-        switch (t){
-          case "send":
-            return "个人";
-          case "group":
-            return "QQ群";
-          case "wx":
-            return "微信";
-          case "ww":
-            return "企业微信";
-          case "email":
-            return "邮件";
-          default:
-            return "未知方式"
-        }
-      }
-
-      $.post(options, (err, resp, data) => {
-        try {
-          if (err) {
-            console.log(`发送${pushMode(QQ_MODE)}通知调用API失败！！\n`)
-            console.log(err);
-          } else {
-            data = JSON.parse(data);
-            if (data.code === 200) {
-              console.log(`酷推发送${pushMode(QQ_MODE)}通知消息成功\n`)
-            } else if (data.code === 400) {
-              console.log(`QQ酷推(Cool Push)发送${pushMode(QQ_MODE)}推送失败：${data.msg}\n`)
-            } else if (data.code === 503) {
-              console.log(`QQ酷推出错，${data.message}：${data.data}\n`)
-            }else{
-              console.log(`酷推推送异常: ${JSON.stringify(data)}`);
-            }
-          }
-        } catch (e) {
-          $.logErr(e, resp);
-        } finally {
-          resolve(data);
-        }
-      })
-    } else {
-      console.log('您未提供酷推的SKEY，取消QQ推送消息通知\n');
       resolve()
     }
   })
@@ -457,85 +381,125 @@ function qywxBotNotify(text, desp) {
   });
 }
 
+function ChangeUserId(desp) {
+  const QYWX_AM_AY = QYWX_AM.split(',');
+  if (QYWX_AM_AY[2]) {
+    const userIdTmp = QYWX_AM_AY[2].split("|");
+    let userId = "";
+    for (let i = 0; i < userIdTmp.length; i++) {
+      const count = "账号" + (i + 1);
+      const count2 = "签到号 " + (i + 1);
+      if (desp.match(count) || desp.match(count2)) {
+        userId = userIdTmp[i];
+      }
+    }
+    if (!userId) userId = QYWX_AM_AY[2];
+    return userId;
+  } else {
+    return "@all";
+  }
+}
+
 function qywxamNotify(text, desp) {
   return new Promise(resolve => {
     if (QYWX_AM) {
-      var QYWX_AM_AY = QYWX_AM.split(',');
+      const QYWX_AM_AY = QYWX_AM.split(',');
       const options_accesstoken = {
         url: `https://qyapi.weixin.qq.com/cgi-bin/gettoken`,
         json: {
-          corpid:`${QYWX_AM_AY[0]}`,
-          corpsecret:`${QYWX_AM_AY[1]}`,
+          corpid: `${QYWX_AM_AY[0]}`,
+          corpsecret: `${QYWX_AM_AY[1]}`,
         },
         headers: {
           'Content-Type': 'application/json',
         },
       };
-    $.post(options_accesstoken, (err, resp, data) => {
-      html=desp.replace(/\n/g,"<br/>")    
-      var json = JSON.parse(data);
-      accesstoken = json.access_token;
-      const options_textcard = {
-        url: `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${accesstoken}`,
-        json: {
-          touser:`${QYWX_AM_AY[2]}`,
-          agentid:`${QYWX_AM_AY[3]}`,
-          msgtype: 'textcard',
-          textcard: {
-            title: `${text}`,
-            description: `${desp}`,
-            url: '127.0.0.1',
-            btntxt: '更多'
-          },
-          safe:'0',
-        },
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      const options_mpnews = {
-        url: `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${accesstoken}`,
-        json: {
-          touser:`${QYWX_AM_AY[2]}`,
-          agentid:`${QYWX_AM_AY[3]}`,
-          msgtype: 'mpnews',
-          mpnews: {
-                  articles: [
+      $.post(options_accesstoken, (err, resp, data) => {
+        html = desp.replace(/\n/g, "<br/>")
+        var json = JSON.parse(data);
+        accesstoken = json.access_token;
+        let options;
+
+        switch (QYWX_AM_AY[4]) {
+          case '0':
+            options = {
+              msgtype: 'textcard',
+              textcard: {
+                title: `${text}`,
+                description: `${desp}`,
+                url: 'https://github.com/lxk0301/jd_scripts',
+                btntxt: '更多'
+              }
+            }
+            break;
+
+          case '1':
+            options = {
+              msgtype: 'text',
+              text: {
+                content: `${text}\n\n${desp}`
+              }
+            }
+            break;
+
+          default:
+            options = {
+              msgtype: 'mpnews',
+              mpnews: {
+                articles: [
                   {
-            title: `${text}`,
-                  thumb_media_id: `${QYWX_AM_AY[4]}`,  
-                  author : `智能助手` ,
-                  content_source_url: ``,
-                  content : `${html}`, 
-                  digest: `${desp}`
+                    title: `${text}`,
+                    thumb_media_id: `${QYWX_AM_AY[4]}`,
+                    author: `智能助手`,
+                    content_source_url: ``,
+                    content: `${html}`,
+                    digest: `${desp}`
                   }
-                  ]
-          },
-          safe:'0',
-        },
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      $.post((QYWX_AM_AY[4]==0)?options_textcard:options_mpnews, (err, resp, data) => {
-        try {
-          if (err) {
-            console.log('企业微信应用消息发送通知消息失败！！\n');
-            console.log(err);
-          } else {
-            data = JSON.parse(data);
-            if (data.errcode === 0) {
-              console.log('企业微信应用消息发送通知消息完成。\n');
-            } else {
-              console.log(`${data.errmsg}\n`);
+                ]
+              }
+            }
+        };
+        if (!QYWX_AM_AY[4]) {
+          //如不提供第四个参数,则默认进行文本消息类型推送
+          options = {
+            msgtype: 'text',
+            text: {
+              content: `${text}\n\n${desp}`
             }
           }
-        } catch (e) {
-          $.logErr(e, resp);
-        } finally {
-          resolve(data);
         }
-      });
+        options = {
+          url: `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${accesstoken}`,
+          json: {
+            touser: `${ChangeUserId(desp)}`,
+            agentid: `${QYWX_AM_AY[3]}`,
+            safe: '0',
+            ...options
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+
+        $.post(options, (err, resp, data) => {
+          try {
+            if (err) {
+              console.log('成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息失败！！\n');
+              console.log(err);
+            } else {
+              data = JSON.parse(data);
+              if (data.errcode === 0) {
+                console.log('成员ID:' + ChangeUserId(desp) + '企业微信应用消息发送通知消息完成。\n');
+              } else {
+                console.log(`${data.errmsg}\n`);
+              }
+            }
+          } catch (e) {
+            $.logErr(e, resp);
+          } finally {
+            resolve(data);
+          }
+        });
       });
     } else {
       console.log('您未提供企业微信应用消息推送所需的QYWX_AM，取消企业微信应用消息推送消息通知\n');
@@ -634,6 +598,5 @@ module.exports = {
   sendNotify,
   BARK_PUSH
 }
-
 // prettier-ignore
 function Env(t,s){return new class{constructor(t,s){this.name=t,this.data=null,this.dataFile="box.dat",this.logs=[],this.logSeparator="\n",this.startTime=(new Date).getTime(),Object.assign(this,s),this.log("",`\ud83d\udd14${this.name}, \u5f00\u59cb!`)}isNode(){return"undefined"!=typeof module&&!!module.exports}isQuanX(){return"undefined"!=typeof $task}isSurge(){return"undefined"!=typeof $httpClient&&"undefined"==typeof $loon}isLoon(){return"undefined"!=typeof $loon}getScript(t){return new Promise(s=>{$.get({url:t},(t,e,i)=>s(i))})}runScript(t,s){return new Promise(e=>{let i=this.getdata("@chavy_boxjs_userCfgs.httpapi");i=i?i.replace(/\n/g,"").trim():i;let o=this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout");o=o?1*o:20,o=s&&s.timeout?s.timeout:o;const[h,a]=i.split("@"),r={url:`http://${a}/v1/scripting/evaluate`,body:{script_text:t,mock_type:"cron",timeout:o},headers:{"X-Key":h,Accept:"*/*"}};$.post(r,(t,s,i)=>e(i))}).catch(t=>this.logErr(t))}loaddata(){if(!this.isNode())return{};{this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s);if(!e&&!i)return{};{const i=e?t:s;try{return JSON.parse(this.fs.readFileSync(i))}catch(t){return{}}}}}writedata(){if(this.isNode()){this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s),o=JSON.stringify(this.data);e?this.fs.writeFileSync(t,o):i?this.fs.writeFileSync(s,o):this.fs.writeFileSync(t,o)}}lodash_get(t,s,e){const i=s.replace(/\[(\d+)\]/g,".$1").split(".");let o=t;for(const t of i)if(o=Object(o)[t],void 0===o)return e;return o}lodash_set(t,s,e){return Object(t)!==t?t:(Array.isArray(s)||(s=s.toString().match(/[^.[\]]+/g)||[]),s.slice(0,-1).reduce((t,e,i)=>Object(t[e])===t[e]?t[e]:t[e]=Math.abs(s[i+1])>>0==+s[i+1]?[]:{},t)[s[s.length-1]]=e,t)}getdata(t){let s=this.getval(t);if(/^@/.test(t)){const[,e,i]=/^@(.*?)\.(.*?)$/.exec(t),o=e?this.getval(e):"";if(o)try{const t=JSON.parse(o);s=t?this.lodash_get(t,i,""):s}catch(t){s=""}}return s}setdata(t,s){let e=!1;if(/^@/.test(s)){const[,i,o]=/^@(.*?)\.(.*?)$/.exec(s),h=this.getval(i),a=i?"null"===h?null:h||"{}":"{}";try{const s=JSON.parse(a);this.lodash_set(s,o,t),e=this.setval(JSON.stringify(s),i)}catch(s){const h={};this.lodash_set(h,o,t),e=this.setval(JSON.stringify(h),i)}}else e=$.setval(t,s);return e}getval(t){return this.isSurge()||this.isLoon()?$persistentStore.read(t):this.isQuanX()?$prefs.valueForKey(t):this.isNode()?(this.data=this.loaddata(),this.data[t]):this.data&&this.data[t]||null}setval(t,s){return this.isSurge()||this.isLoon()?$persistentStore.write(t,s):this.isQuanX()?$prefs.setValueForKey(t,s):this.isNode()?(this.data=this.loaddata(),this.data[s]=t,this.writedata(),!0):this.data&&this.data[s]||null}initGotEnv(t){this.got=this.got?this.got:require("got"),this.cktough=this.cktough?this.cktough:require("tough-cookie"),this.ckjar=this.ckjar?this.ckjar:new this.cktough.CookieJar,t&&(t.headers=t.headers?t.headers:{},void 0===t.headers.Cookie&&void 0===t.cookieJar&&(t.cookieJar=this.ckjar))}get(t,s=(()=>{})){t.headers&&(delete t.headers["Content-Type"],delete t.headers["Content-Length"]),this.isSurge()||this.isLoon()?$httpClient.get(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)}):this.isQuanX()?$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)):this.isNode()&&(this.initGotEnv(t),this.got(t).on("redirect",(t,s)=>{try{const e=t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();this.ckjar.setCookieSync(e,null),s.cookieJar=this.ckjar}catch(t){this.logErr(t)}}).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)))}post(t,s=(()=>{})){if(t.body&&t.headers&&!t.headers["Content-Type"]&&(t.headers["Content-Type"]="application/x-www-form-urlencoded"),delete t.headers["Content-Length"],this.isSurge()||this.isLoon())$httpClient.post(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)});else if(this.isQuanX())t.method="POST",$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t));else if(this.isNode()){this.initGotEnv(t);const{url:e,...i}=t;this.got.post(e,i).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t))}}time(t){let s={"M+":(new Date).getMonth()+1,"d+":(new Date).getDate(),"H+":(new Date).getHours(),"m+":(new Date).getMinutes(),"s+":(new Date).getSeconds(),"q+":Math.floor(((new Date).getMonth()+3)/3),S:(new Date).getMilliseconds()};/(y+)/.test(t)&&(t=t.replace(RegExp.$1,((new Date).getFullYear()+"").substr(4-RegExp.$1.length)));for(let e in s)new RegExp("("+e+")").test(t)&&(t=t.replace(RegExp.$1,1==RegExp.$1.length?s[e]:("00"+s[e]).substr((""+s[e]).length)));return t}msg(s=t,e="",i="",o){const h=t=>!t||!this.isLoon()&&this.isSurge()?t:"string"==typeof t?this.isLoon()?t:this.isQuanX()?{"open-url":t}:void 0:"object"==typeof t&&(t["open-url"]||t["media-url"])?this.isLoon()?t["open-url"]:this.isQuanX()?t:void 0:void 0;$.isMute||(this.isSurge()||this.isLoon()?$notification.post(s,e,i,h(o)):this.isQuanX()&&$notify(s,e,i,h(o))),this.logs.push("","==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="),this.logs.push(s),e&&this.logs.push(e),i&&this.logs.push(i)}log(...t){t.length>0?this.logs=[...this.logs,...t]:console.log(this.logs.join(this.logSeparator))}logErr(t,s){const e=!this.isSurge()&&!this.isQuanX()&&!this.isLoon();e?$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.stack):$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t)}wait(t){return new Promise(s=>setTimeout(s,t))}done(t={}){const s=(new Date).getTime(),e=(s-this.startTime)/1e3;this.log("",`\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${e} \u79d2`),this.log(),(this.isSurge()||this.isQuanX()||this.isLoon())&&$done(t)}}(t,s)}
