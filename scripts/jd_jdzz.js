@@ -8,17 +8,17 @@
 ============Quantumultx===============
 [task_local]
 # 京东赚赚
-10 0 * * * https://gitee.com/lxk0301/jd_scripts/raw/master/jd_jdzz.js, tag=京东赚赚, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdzz.png, enabled=true
+10 0 * * * https://jdsharedresourcescdn.azureedge.net/jdresource/jd_jdzz.js, tag=京东赚赚, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdzz.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "10 0 * * *" script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_jdzz.js,tag=京东赚赚
+cron "10 0 * * *" script-path=https://jdsharedresourcescdn.azureedge.net/jdresource/jd_jdzz.js,tag=京东赚赚
 
 ===============Surge=================
-京东赚赚 = type=cron,cronexp="10 0 * * *",wake-system=1,timeout=3600,script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_jdzz.js
+京东赚赚 = type=cron,cronexp="10 0 * * *",wake-system=1,timeout=3600,script-path=https://jdsharedresourcescdn.azureedge.net/jdresource/jd_jdzz.js
 
 ============小火箭=========
-京东赚赚 = type=cron,script-path=https://gitee.com/lxk0301/jd_scripts/raw/master/jd_jdzz.js, cronexpr="10 0 * * *", timeout=3600, enable=true
+京东赚赚 = type=cron,script-path=https://jdsharedresourcescdn.azureedge.net/jdresource/jd_jdzz.js, cronexpr="10 0 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京东赚赚');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -36,24 +36,18 @@ if ($.isNode()) {
   if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {
   };
 } else {
-  let cookiesData = $.getdata('CookiesJD') || "[]";
-  cookiesData = jsonParse(cookiesData);
-  cookiesArr = cookiesData.map(item => item.cookie);
-  cookiesArr.reverse();
-  cookiesArr.push(...[$.getdata('CookieJD2'), $.getdata('CookieJD')]);
-  cookiesArr.reverse();
-  cookiesArr = cookiesArr.filter(item => item !== "" && item !== null && item !== undefined);
+  cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 const inviteCodes = [
-  `ACjVSmK-QzzYAFWX83XxNnQ@S5KkcH1lQpB6qW3uX06Fu@ACjBfn6iTzTYBAGaXnQ@A3avtRgYKGqKz3e15@A373QSgwwGJOy3Oh-CfTM@S5KkcRBoRp1SEJBP1nKIDdg@S5KkcRR1K8wXXJxKiwaIIdA@Sv_h6Rhof_FzTIxyb1A@S5KkcNmJNlxOBRUCU9axO@A06fNRgYIG7Kz3ul3Ctb-Q-ggGzUB`,
-  `ACjVSmK-QzzYAFWX83XxNnQ@S5KkcH1lQpB6qW3uX06Fu@ACjBfn6iTzTYBAGaXnQ@A3avtRgYKGqKz3e15@A373QSgwwGJOy3Oh-CfTM@S5KkcRBoRp1SEJBP1nKIDdg@S5KkcRR1K8wXXJxKiwaIIdA@Sv_h6Rhof_FzTIxyb1A@S5KkcNmJNlxOBRUCU9axO@A06fNRgYIG7Kz3ul3Ctb-Q-ggGzUB`,
+  `ATGEC3-fsrn13aiaEqiM@AUWE5maSSnzFeDmH4iH0elA@ATGEC3-fsrn13aiaEqiM@AUWE5m6WUmDdZC2mr1XhJlQ@AUWE5m_jEzjJZDTKr3nwfkg@A06fNSRc4GIqY38pMBeLKQE2InZA@AUWE5mf7ExDZdDmH7j3wfkA@AUWE5m6jBy2cNAWX7j31Pxw@AUWE5mK2UnDddDTX61S1Mkw@AUWE5mavGyGZdWzP5iCoZwQ`,
+  `ATGEC3-fsrn13aiaEqiM@AUWE5maSSnzFeDmH4iH0elA@ATGEC3-fsrn13aiaEqiM@AUWE5m6WUmDdZC2mr1XhJlQ@AUWE5m_jEzjJZDTKr3nwfkg@A06fNSRc4GIqY38pMBeLKQE2InZA@AUWE5m6_BmTUPAGH42SpOkg@AUWE53NTIs3V8YBqthQMI@AUWE5m6yVxTJcWjWr3nRIlw`
 ]
 !(async () => {
   $.tuanList = []
   await requireConfig();
-  if (helpAuthor) await getAuthorShareCode('https://gitee.com/Soundantony/updateTeam/raw/master/jd_zz.json');
-  if (helpAuthor) await getAuthorShareCode('https://gitee.com/Soundantony/updateTeam/raw/master/jd_zz.json');
+  if (helpAuthor) await getAuthorShareCode('https://gitee.com/shylocks/updateTeam/raw/main/jd_zz.json');
+  if (helpAuthor) await getAuthorShareCode('https://gitee.com/lxk0301/updateTeam/raw/master/shareCodes/jd_zz.json');
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
@@ -345,19 +339,14 @@ async function helpFriends() {
 function readShareCode() {
   console.log(`开始`)
   return new Promise(async resolve => {
-    $.get({url: "https://gitee.com/Soundantony/RandomShareCode/raw/master/JD_Jdzz.json",headers:{
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
-      }}, async (err, resp, data) => {
+    $.get({url: `https://code.chiang.fun/api/v1/jd/jdzz/read/${randomCount}/`, 'timeout': 10000}, (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，将切换为备用API`)
-          console.log(`随机取助力码放到您固定的互助码后面(不影响已有固定互助)`)
-          $.get({url: `https://raw.githubusercontent.com/shuyeshuye/RandomShareCode/master/JD_Jdzz.json`, 'timeout': 10000},(err, resp, data)=>{
-          data = JSON.parse(data);})
+          console.log(`${$.name} API请求失败，请检查网路重试`)
         } else {
           if (data) {
-            console.log(`随机取助力码放到您固定的互助码后面(不影响已有固定互助)`)
+            console.log(`随机取${randomCount}个码放到您固定的互助码后面(不影响已有固定互助)`)
             data = JSON.parse(data);
           }
         }
@@ -493,7 +482,7 @@ function TotalBean() {
               return
             }
             if (data['retcode'] === 0) {
-              $.nickName = data['base'].nickname;
+              $.nickName = (data['base'] && data['base'].nickname) || $.UserName;
             } else {
               $.nickName = $.UserName
             }
