@@ -26,7 +26,7 @@
     "tunnel":"0.0.6",
     "ws":"^7.4.3"
   },
-  "homepage":"https://github.com/sazs34/MyActions#readme",
+  "homepage":"https://github.com/573462273/JDActions#readme",
   "dependencies":{
     "request":"^2.88.2",
     "request-promise":"^4.2.5",
