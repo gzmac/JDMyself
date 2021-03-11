@@ -1,1 +1,1 @@
-# JD Actions For Myself
+# 项目已作废
